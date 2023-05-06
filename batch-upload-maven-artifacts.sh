@@ -4,9 +4,10 @@
 # batch-upload-maven-artifacts.sh
 #============================================
 # @author bianyun (http://github.com/bianyun)
-# @date 2023/3/5
-# @version 1.0
+# @since 2023/3/5
+# @version 1.1-SNAPSHOT
 #============================================
+
 
 if [ "$#" -ne 3 ]; then
   echo -e "\033[1;32mUsage: ./batch-upload-maven-artifacts <artifactsDirPath> <repositoryId> <repositoryUrl>\033[m"
@@ -23,7 +24,8 @@ if [ "$#" -ne 3 ]; then
   exit 1
 fi
 
-if [[ ! -d $1 ]]; then
+ls $1 > /dev/null 2>&1
+if [ $? -ne 0 ]; then
   echo -e "\033[1;31m The artifacts dir path you input does not exits: [$1]\033[m\n" && exit 1
 fi
 
@@ -79,6 +81,7 @@ calc_total_artifacts_count() {
   >&2 echo -e "\n\033[1;32m=== Start to count the num of artifacts need uploaded, may take a long time, be patient!\033[m"
   
   local artifactsDirPath="$1"
+  >&2 echo "artifactsDirPath=$artifactsDirPath"
 
   local count=0
   while read -r line ; do
@@ -128,7 +131,7 @@ upload_artifacts() {
   local repositoryId="$2"
   local repositoryUrl="$3"
   
-  local totalCount=$(calc_total_artifacts_count $artifactsDirPath)
+  local totalCount=$(calc_total_artifacts_count "$artifactsDirPath")
   echo -e "\n\033[1;35m=== Start to upload artifacts (total count: $totalCount)...\033[m\n"
   
   local index=0
@@ -199,7 +202,7 @@ upload_artifacts() {
 
 startSeconds=$(date +%s)
 
-upload_artifacts $1 $2 $3
+upload_artifacts "$1" $2 $3
 
 endSeconds=$(date +%s)
 totalSeconds=$((endSeconds - startSeconds))
